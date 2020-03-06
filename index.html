@@ -1,0 +1,184 @@
+<html>
+<title>User login</title>
+<head>
+	<script>
+	const hostname = "https://rlshahtestmobile.ite1.idng.ibmcloudsecurity.com";
+	const client_id = "4b6aa695-3cf8-45f9-baf2-4f754645eb9f";
+
+	function redirectUser() {
+		window.location.replace(`${hostname}/usc`);
+	}
+
+	function establishSession(token) {
+		var xhr = new XMLHttpRequest();
+		xhr.withCredentials = true;
+
+		xhr.addEventListener("readystatechange", function() {
+		  if(this.readyState === 4) {
+		    console.log(this.responseText);
+				redirectUser();
+		  }
+		});
+
+		xhr.open("GET", "https://rlshahtestmobile.ite1.idng.ibmcloudsecurity.com/v1.0/auth/session");
+		xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+		xhr.setRequestHeader("X-Forwarded-Host", `rlshahtestmobile.ite1.idng.ibmcloudsecurity.com`);
+		xhr.setRequestHeader("Access-Control-Allow-Headers", `x-requested-with`);
+		xhr.setRequestHeader("Access-Control-Allow-Origin", `*`);
+		xhr.setRequestHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+		xhr.send();
+
+		// $.ajax({
+		//     type: "GET",
+		//     url: `${hostname}/v1.0/auth/session`,
+		//     "headers": {
+		// 		"Access-Control-Allow-Headers": "x-requested-with",
+		// 		"Access-Control-Allow-Origin": "*",
+		// 		"Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+		// 	    "Authorization": `Bearer ${token}`
+		//   	},
+		//     xhrFields: {
+		//         withCredentials: true
+		//     },
+		//     success: function(data, status, xhr) {
+		//     	console.log("Data: " + data);
+		//     	window.location.replace(`${hostname}/usc`);
+		//     }
+		// });
+	}
+
+	function login(form) {
+	    var un = encodeURI(form.Username.value);
+	    var pw = form.Password.value;
+	    var data = `grant_type=password&client_id=${client_id}&username=${un}&password=${pw}`;
+
+		var xhr = new XMLHttpRequest();
+		xhr.withCredentials = true;
+
+		xhr.addEventListener("readystatechange", function () {
+				console.log("readystate", this.readyState);
+		  	if (this.readyState === 4) {
+			  	var response = JSON.parse(this.responseText);
+			    console.log("LoginForm", response);
+			    loginResults(this.responseText);
+					console.log("Text", this.responseText);
+			    establishSession(response.access_token);
+		  	}
+		});
+
+		xhr.open("POST", `${hostname}/oidc/endpoint/default/token`);
+		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		xhr.send(data);
+	}
+
+	window.addEventListener("load", function() {
+	    var loginForm = document.getElementById("LoginForm");
+	    loginForm.addEventListener("submit", function() {
+	         login(loginForm);
+	     });
+	 });
+
+	function loginResults(response) {
+	    var loggedIn = document.getElementById("LoggedIn");
+	    var badLogin = document.getElementById("BadLogin");
+	    var form = document.getElementById("LoginForm");
+	    console.log(response.indexOf("error"));
+	    if (response.indexOf("error") == -1) {
+	        loggedIn.style.display = "block";
+	        form.style.display = "none";
+	        badLogin.style.display = "none";
+	    } else {
+	        badLogin.style.display = "block";
+	    }
+	}
+	</script>
+	<link rel="stylesheet" type="text/css" href="https://unpkg.com/carbon-components/css/carbon-components.min.css">
+	<script src="https://unpkg.com/carbon-components/scripts/carbon-components.min.js"></script>
+	<style>
+		.tx--tile {
+			background-color: #ffffff;
+			margin-top:1rem;
+		}
+		.tx--title {
+
+			margin-top:2rem;
+		}
+		.tx--m-t-1 {
+			margin-top:1rem;
+		}
+	</style>
+</head>
+<body style="font-family: IBM Plex Sans; background-color: #f4f4f4">
+	<div class="bx--grid">
+	  <div class="bx--row">
+	  	<!-- box -->
+	    <div class="bx--offset-lg-4 bx--col-lg-4 bx--offset-md-2 bx--col-md-4">
+    		<!-- START DISCLAIMER -->
+    		<div data-notification class="bx--inline-notification bx--inline-notification--info" role="alert">
+			    <div class="bx--inline-notification__details">
+			          <svg focusable="false" preserveAspectRatio="xMidYMid meet" style="will-change: transform;" xmlns="http://www.w3.org/2000/svg" class="bx--inline-notification__icon" width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><path d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,5a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,7Zm4,17.12H12V21.88h2.88V15.12H13V12.88h4.13v9H20Z"></path></svg>
+			        <div class="bx--inline-notification__text-wrapper">
+			          <p class="bx--inline-notification__title">For demonstration use only</p>
+			          <p class="bx--inline-notification__subtitle">This is a demonstration of using OpenID connect form-based access (ROPC) to obtain an access token and exchange that for a session to be used with single sign on. This should be used for testing purposes <b>only</b>.</p>
+			        </div>
+			    </div>
+			    <button data-notification-btn class="bx--inline-notification__close-button" type="button" aria-label="close">
+			      <svg focusable="false" preserveAspectRatio="xMidYMid meet" style="will-change: transform;" xmlns="http://www.w3.org/2000/svg" class="bx--inline-notification__close-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M12 4.7L11.3 4 8 7.3 4.7 4 4 4.7 7.3 8 4 11.3 4.7 12 8 8.7 11.3 12 12 11.3 8.7 8z"></path></svg>
+			    </button>
+	  		</div>
+	  		<!-- END DISCLAIMER -->
+	    	<h2 class="tx--title">Welcome, please login!</h2>
+	    	<div class="bx--tile tx--tile">
+	    		<form id="LoginForm" onsubmit="return false">
+			        <div class="bx--form-item">
+					  <label for="Username" class="bx--label">Username</label>
+					  <input
+					    required
+					    id="Username"
+					    type="text"
+					    class="bx--text-input"
+					    placeholder="Enter username here"
+					  />
+					</div>
+				    <div class="bx--form-item tx--m-t-1">
+				      <label for="Password" class="bx--label">Password</label>
+				      <input
+				        required
+				        id="Password"
+				        type="password"
+				        class="bx--text-input"
+				        placeholder="Enter password here"
+				      />
+				    </div>
+				    <button class="bx--btn bx--btn--primary tx--m-t-1" type="submit">Login</button>
+				</form>
+				<div data-notification class="bx--inline-notification bx--inline-notification--error" role="alert" id="BadLogin" style="display:none">
+				    <div class="bx--inline-notification__details">
+				          <svg focusable="false" preserveAspectRatio="xMidYMid meet" style="will-change: transform;" xmlns="http://www.w3.org/2000/svg" class="bx--inline-notification__icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M13.5,14.5l-8-8l1-1l8,8L13.5,14.5z"></path><path d="M13.5,14.5l-8-8l1-1l8,8L13.5,14.5z" data-icon-path="inner-path" opacity="0"></path></svg>
+				        <div class="bx--inline-notification__text-wrapper">
+				          <p class="bx--inline-notification__title">Login error!</p>
+				          <p class="bx--inline-notification__subtitle">The login information you entered does not match an account in our records. Please try again.</p>
+				        </div>
+				    </div>
+			    </div>
+			    <div id="LoggedIn" style="display:none">
+			        <div data-inline-loading class="bx--inline-loading" role="alert" aria-live="assertive">
+					  <div class="bx--inline-loading__animation">
+					    <div data-inline-loading-spinner class="bx--loading bx--loading--small">
+					      <svg class="bx--loading__svg" viewBox="-75 -75 150 150">
+					        <circle class="bx--loading__background" cx="0" cy="0" r="30" />
+					        <circle class="bx--loading__stroke" cx="0" cy="0" r="30"/>
+					      </svg>
+					    </div>
+					    <svg focusable="false" preserveAspectRatio="xMidYMid meet" style="will-change: transform;" xmlns="http://www.w3.org/2000/svg" class="bx--inline-loading__checkmark-container" hidden="" data-inline-loading-finished="" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8,1C4.1,1,1,4.1,1,8c0,3.9,3.1,7,7,7s7-3.1,7-7C15,4.1,11.9,1,8,1z M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"></path><path d="M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z" data-icon-path="inner-path" opacity="0"></path></svg>
+					  </div>
+					  <p data-inline-loading-text-active class="bx--inline-loading__text">Logging in...</p>
+					</div>
+			    </div>
+	    	</div>
+	    <!-- box -->
+	    </div>
+	  </div>
+	</grid>
+</body>
+</html>
